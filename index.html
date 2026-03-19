@@ -222,14 +222,29 @@
         };
 
         async function handlePlatformClick(id, r, c) {
-            if (!currentRoom) return;
-            const el = platformElements[id];
-            const owner = el.dataset.owner || 0;
-            if (owner != 0 && owner != currentPlayer) {
-                if (!confirm(`該處已被玩家 ${owner} 佔領，確定覆蓋？`)) return;
-            }
-            set(ref(db, `rooms/${currentRoom}/data/${id}`), { owner: currentPlayer, time: Date.now() });
-        }
+    if (!currentRoom) return;
+    const el = platformElements[id];
+    const owner = el.dataset.owner || 0;
+
+    // --- 新增功能：再次點選取消 ---
+    if (owner == currentPlayer) {
+        // 如果點擊的是自己的顏色，則取消佔領 (從 Firebase 移除該節點)
+        await remove(ref(db, `rooms/${currentRoom}/data/${id}`));
+        return; 
+    }
+    // ----------------------------
+
+    // 如果點擊的是別人的格子，跳出確認
+    if (owner != 0 && owner != currentPlayer) {
+        if (!confirm(`該處已被玩家 ${owner} 佔領，確定要覆蓋它嗎？⚔️`)) return;
+    }
+
+    // 執行佔領
+    set(ref(db, `rooms/${currentRoom}/data/${id}`), { 
+        owner: currentPlayer, 
+        time: Date.now() 
+    });
+}
 
         window.setPlayer = (num) => {
             currentPlayer = num;
