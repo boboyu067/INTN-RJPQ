@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INTN 羅茱小工具</title>
+    <style>
+        :root {
+            --color-1: #4B0082; --color-2: #F8F8FF; --color-3: #98FB98; --color-4: #FFBF00; 
+            --bg-dark: #0a0a0b; --panel-bg: #161618; --accent: #4a90e2; --success: #27ae60;
+        }
+        body { background-color: var(--bg-dark); color: white; font-family: 'Segoe UI', system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+        
+        input { background: #222; border: 1px solid #444; color: white; padding: 12px; border-radius: 8px; font-size: 16px; transition: 0.3s; width: 100%; box-sizing: border-box; }
+        input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 10px rgba(74, 144, 226, 0.2); }
+        button { padding: 12px 20px; cursor: pointer; border-radius: 8px; border: none; font-weight: bold; transition: 0.2s; font-size: 15px; }
+        button:active { transform: scale(0.98); }
+        
+        /* 登入介面 */
+        #loginPortal {
+            background: var(--panel-bg); padding: 40px; border-radius: 20px; border: 1px solid #333;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8); text-align: center; width: 100%; max-width: 420px;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        }
+        #loginPortal h1 { margin: 0; font-size: 32px; background: linear-gradient(to right, #4a90e2, #a2d2ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; }
+        .sub-title { color: #666; font-size: 14px; margin-bottom: 30px; }
+        .input-group { display: flex; gap: 10px; margin-bottom: 15px; }
+        .btn-primary { background: var(--accent); color: white; width: 100%; }
+        .btn-outline { background: transparent; border: 1px solid var(--success); color: var(--success); width: 100%; margin-top: 10px; }
+        .btn-outline:hover { background: var(--success); color: white; }
+        .divider { margin: 25px 0; border-top: 1px solid #333; position: relative; }
+        .divider span { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--panel-bg); padding: 0 15px; color: #444; font-size: 12px; }
+
+        /* 主控制台 */
+        #mainConsole { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 850px; }
+        .status-bar { background: var(--panel-bg); padding: 15px 25px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #333; display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        
+        /* 房號與複製按鈕組合 */
+        .room-box { display: flex; align-items: center; gap: 8px; background: #000; padding: 4px 12px; border-radius: 6px; border: 1px solid #333; }
+        .room-display { font-family: 'JetBrains Mono', monospace; color: var(--accent); font-size: 18px; font-weight: bold; letter-spacing: 1px; }
+        .copy-icon { cursor: pointer; color: #555; font-size: 16px; transition: 0.2s; padding: 2px; }
+        .copy-icon:hover { color: var(--accent); transform: scale(1.2); }
+
+        #playerSelector { margin-bottom: 20px; display: flex; gap: 12px; }
+        .player-tag { padding: 10px 24px; border-radius: 30px; cursor: pointer; opacity: 0.2; border: 2px solid transparent; transition: 0.3s; font-weight: bold; font-size: 14px; }
+        .active-player { opacity: 1; border-color: white; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+
+        .main-container { display: flex; flex-direction: column-reverse; background: var(--panel-bg); padding: 25px; border-radius: 16px; border: 1px solid #333; }
+        .row-wrapper { display: flex; align-items: center; margin-bottom: 10px; gap: 20px; }
+        .floor-label { width: 50px; text-align: right; font-weight: bold; color: #555; font-size: 14px; }
+        .platforms-row { display: flex; gap: 10px; }
+        .platform { width: 65px; height: 50px; background: #222; border-radius: 8px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; color: #444; }
+        .platform:hover { transform: scale(1.08); background: #2a2a2a; }
+        
+        .occupied-1 { background-color: var(--color-1) !important; color: white !important; }
+        .occupied-2 { background-color: var(--color-2) !important; color: black !important; }
+        .occupied-3 { background-color: var(--color-3) !important; color: black !important; }
+        .occupied-4 { background-color: var(--color-4) !important; color: black !important; }
+
+        .btn-danger { background: #c0392b; color: white; padding: 8px 15px; font-size: 13px; }
+        .btn-secondary { background: #444; color: white; padding: 8px 15px; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+    <div id="loginPortal">
+        <h1>INTN 羅茱小工具</h1>
+        <div class="input-group">
+            <input type="text" id="roomCodeInput" placeholder="房間代碼" style="text-transform: uppercase;">
+            <input type="password" id="joinPass" placeholder="密碼" style="width: 140px;">
+        </div>
+        <button class="btn-primary" onclick="joinExistingRoom()">進入同步空間🚪</button>
+        <div class="divider"><span>或創建新空間</span></div>
+        <button class="btn-outline" onclick="createNewRoom()">一鍵生成隨機房間✨</button>
+    </div>
+
+    <div id="mainConsole">
+        <div class="status-bar">
+            <div>
+                <span style="color: #666; font-size: 11px; display: block; margin-bottom: 4px; text-transform: uppercase;">Room Code</span>
+                <div class="room-box">
+                    <span id="displayRoomName" class="room-display">------</span>
+                    <span class="copy-icon" onclick="copyRoomCode()" title="複製代碼">📋</span>
+                </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn-danger" onclick="resetGrid()">重製</button>
+                <button class="btn-secondary" onclick="leaveRoom()">離開</button>
+            </div>
+        </div>
+
+        <div id="playerSelector">
+            <span class="player-tag occupied-1 active-player" onclick="setPlayer(1)">玩家 1</span>
+            <span class="player-tag occupied-2" onclick="setPlayer(2)">玩家 2</span>
+            <span class="player-tag occupied-3" onclick="setPlayer(3)">玩家 3</span>
+            <span class="player-tag occupied-4" onclick="setPlayer(4)">玩家 4</span>
+        </div>
+
+        <div class="main-container" id="grid"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue, remove, get, off } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+  apiKey: "AIzaSyAAj9_PxCYs8ynfPj24jX081MtVtSrrUaE",
+  authDomain: "intn-rjpq.firebaseapp.com",
+  databaseURL: "https://intn-rjpq-default-rtdb.firebaseio.com",
+  projectId: "intn-rjpq",
+  storageBucket: "intn-rjpq.firebasestorage.app",
+  messagingSenderId: "799217393662",
+  appId: "1:799217393662:web:c5a1064b963ef3b025eaaf",
+  measurementId: "G-L9L314S16T"
+};
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        
+        let currentRoom = null;
+        let currentPlayer = 1;
+        const platformElements = {};
+        const playerClasses = ['occupied-1', 'occupied-2', 'occupied-3', 'occupied-4'];
+        let dataListener = null;
+
+        // 初始化網格
+        const gridContainer = document.getElementById('grid');
+        for (let r = 1; r <= 10; r++) {
+            const rowWrapper = document.createElement('div');
+            rowWrapper.className = 'row-wrapper';
+            const label = document.createElement('div');
+            label.className = 'floor-label'; label.innerText = `${r}F`;
+            rowWrapper.appendChild(label);
+            const pRow = document.createElement('div');
+            pRow.className = 'platforms-row';
+            for (let c = 1; c <= 4; c++) {
+                const id = `r${r}c${c}`;
+                const div = document.createElement('div');
+                div.className = 'platform'; div.innerText = c;
+                div.onclick = () => handlePlatformClick(id, r, c);
+                pRow.appendChild(div);
+                platformElements[id] = div;
+            }
+            rowWrapper.appendChild(pRow);
+            gridContainer.appendChild(rowWrapper);
+        }
+
+        // 複製代碼功能
+        window.copyRoomCode = () => {
+            if (!currentRoom) return;
+            navigator.clipboard.writeText(currentRoom).then(() => {
+                const icon = document.querySelector('.copy-icon');
+                const originalText = icon.innerText;
+                icon.innerText = '✅'; // 暫時變成勾勾
+                setTimeout(() => icon.innerText = originalText, 1500);
+            });
+        };
+
+        window.createNewRoom = async () => {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let newCode = '';
+            for (let i = 0; i < 6; i++) newCode += chars.charAt(Math.floor(Math.random() * chars.length));
+            
+            const password = prompt(`即將創建房間：${newCode}\n請設定進入密碼：`, "1234");
+            if (password === null) return;
+
+            await set(ref(db, `rooms/${newCode}/config`), { password: password, createdAt: Date.now() });
+            alert(`房間創建成功！\n代碼：${newCode}`);
+            currentRoom = newCode;
+            startSync();
+        };
+
+        window.joinExistingRoom = async () => {
+            const code = document.getElementById('roomCodeInput').value.trim().toUpperCase();
+            const pass = document.getElementById('joinPass').value.trim();
+            if (!code || !pass) return alert("請填寫代碼與密碼！");
+
+            const snapshot = await get(ref(db, `rooms/${code}/config`));
+            if (snapshot.exists()) {
+                if (snapshot.val().password === pass) {
+                    currentRoom = code;
+                    startSync();
+                } else { alert("密碼錯誤！🛑"); }
+            } else { alert("找不到房間代碼。"); }
+        };
+
+        function startSync() {
+            document.getElementById('loginPortal').style.display = 'none';
+            document.getElementById('mainConsole').style.display = 'flex';
+            document.getElementById('displayRoomName').innerText = currentRoom;
+
+            const dataRef = ref(db, `rooms/${currentRoom}/data`);
+            dataListener = onValue(dataRef, (snapshot) => {
+                const data = snapshot.val() || {};
+                Object.keys(platformElements).forEach(id => {
+                    const el = platformElements[id];
+                    const info = data[id];
+                    playerClasses.forEach(c => el.classList.remove(c));
+                    if (info) {
+                        el.classList.add(playerClasses[info.owner - 1]);
+                        el.dataset.owner = info.owner;
+                    } else { el.dataset.owner = 0; }
+                });
+            });
+        }
+
+        // 二次確認離開
+        window.leaveRoom = () => {
+            if (confirm("確定要離開同步空間嗎？(進度將保留)")) {
+                if (dataListener) off(ref(db, `rooms/${currentRoom}/data`));
+                currentRoom = null;
+                document.getElementById('loginPortal').style.display = 'block';
+                document.getElementById('mainConsole').style.display = 'none';
+            }
+        };
+
+        // 重製功能
+        window.resetGrid = async () => {
+            if (confirm("⚠️ 確定要重製(清空)所有玩家的佔領狀態嗎？")) {
+                await remove(ref(db, `rooms/${currentRoom}/data`));
+            }
+        };
+
+        async function handlePlatformClick(id, r, c) {
+            if (!currentRoom) return;
+            const el = platformElements[id];
+            const owner = el.dataset.owner || 0;
+            if (owner != 0 && owner != currentPlayer) {
+                if (!confirm(`該處已被玩家 ${owner} 佔領，確定覆蓋？`)) return;
+            }
+            set(ref(db, `rooms/${currentRoom}/data/${id}`), { owner: currentPlayer, time: Date.now() });
+        }
+
+        window.setPlayer = (num) => {
+            currentPlayer = num;
+            document.querySelectorAll('.player-tag').forEach((el, idx) => el.classList.toggle('active-player', idx === (num - 1)));
+        };
+    </script>
+</body>
+</html>
