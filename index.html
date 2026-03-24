@@ -11,8 +11,8 @@
         }
         body { background-color: var(--bg-dark); color: white; font-family: 'Segoe UI', system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
         
-        input { background: #222; border: 1px solid #444; color: white; padding: 12px; border-radius: 8px; font-size: 16px; transition: 0.3s; width: 100%; box-sizing: border-box; }
-        input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 10px rgba(74, 144, 226, 0.2); }
+        input { background: #222; border: 1px solid #444; color: white; padding: 12px; border-radius: 8px; font-size: 16px; width: 100%; box-sizing: border-box; transition: 0.3s; }
+        input:focus { border-color: var(--accent); outline: none; }
         button { padding: 12px 20px; cursor: pointer; border-radius: 8px; border: none; font-weight: bold; transition: 0.2s; font-size: 15px; }
         button:active { transform: scale(0.98); }
         
@@ -24,10 +24,11 @@
         }
         #loginPortal h1 { margin: 0; font-size: 32px; background: linear-gradient(to right, #4a90e2, #a2d2ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; }
         .sub-title { color: #666; font-size: 14px; margin-bottom: 30px; }
+        
         .input-group { display: flex; gap: 10px; margin-bottom: 15px; }
         .btn-primary { background: var(--accent); color: white; width: 100%; }
         .btn-outline { background: transparent; border: 1px solid var(--success); color: var(--success); width: 100%; margin-top: 10px; }
-        .btn-outline:hover { background: var(--success); color: white; }
+        
         .divider { margin: 25px 0; border-top: 1px solid #333; position: relative; }
         .divider span { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--panel-bg); padding: 0 15px; color: #444; font-size: 12px; }
 
@@ -35,22 +36,22 @@
         #mainConsole { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 850px; }
         .status-bar { background: var(--panel-bg); padding: 15px 25px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #333; display: flex; justify-content: space-between; align-items: center; width: 100%; }
         
-        /* 房號與複製按鈕組合 */
+        .info-item { display: flex; flex-direction: column; gap: 4px; }
+        .info-label { color: #666; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
         .room-box { display: flex; align-items: center; gap: 8px; background: #000; padding: 4px 12px; border-radius: 6px; border: 1px solid #333; }
-        .room-display { font-family: 'JetBrains Mono', monospace; color: var(--accent); font-size: 18px; font-weight: bold; letter-spacing: 1px; }
-        .copy-icon { cursor: pointer; color: #555; font-size: 16px; transition: 0.2s; padding: 2px; }
-        .copy-icon:hover { color: var(--accent); transform: scale(1.2); }
+        .room-display { font-family: 'JetBrains Mono', monospace; color: var(--accent); font-size: 16px; font-weight: bold; }
+        .copy-icon { cursor: pointer; color: #555; font-size: 14px; transition: 0.2s; }
+        .copy-icon:hover { color: var(--accent); }
 
         #playerSelector { margin-bottom: 20px; display: flex; gap: 12px; }
         .player-tag { padding: 10px 24px; border-radius: 30px; cursor: pointer; opacity: 0.2; border: 2px solid transparent; transition: 0.3s; font-weight: bold; font-size: 14px; }
-        .active-player { opacity: 1; border-color: white; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .active-player { opacity: 1; border-color: white; transform: translateY(-3px); }
 
         .main-container { display: flex; flex-direction: column-reverse; background: var(--panel-bg); padding: 25px; border-radius: 16px; border: 1px solid #333; }
         .row-wrapper { display: flex; align-items: center; margin-bottom: 10px; gap: 20px; }
         .floor-label { width: 50px; text-align: right; font-weight: bold; color: #555; font-size: 14px; }
         .platforms-row { display: flex; gap: 10px; }
         .platform { width: 65px; height: 50px; background: #222; border-radius: 8px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; color: #444; }
-        .platform:hover { transform: scale(1.08); background: #2a2a2a; }
         
         .occupied-1 { background-color: var(--color-1) !important; color: white !important; }
         .occupied-2 { background-color: var(--color-2) !important; color: black !important; }
@@ -65,22 +66,32 @@
 
     <div id="loginPortal">
         <h1>INTN 羅茱小工具</h1>
+	<p class="sub-title"></p>
         <div class="input-group">
             <input type="text" id="roomCodeInput" placeholder="房間代碼" style="text-transform: uppercase;">
-            <input type="password" id="joinPass" placeholder="密碼" style="width: 140px;">
+            <input type="text" id="joinPass" placeholder="密碼" style="width: 140px;">
         </div>
-        <button class="btn-primary" onclick="joinExistingRoom()">進入同步空間🚪</button>
+        <button class="btn-primary" onclick="joinExistingRoom()">進入同步空間 🚪</button>
         <div class="divider"><span>或創建新空間</span></div>
-        <button class="btn-outline" onclick="createNewRoom()">一鍵生成隨機房間✨</button>
+        <button class="btn-outline" onclick="createNewRoom()">一鍵生成隨機房間 ✨</button>
     </div>
 
     <div id="mainConsole">
         <div class="status-bar">
-            <div>
-                <span style="color: #666; font-size: 11px; display: block; margin-bottom: 4px; text-transform: uppercase;">Room Code</span>
-                <div class="room-box">
-                    <span id="displayRoomName" class="room-display">------</span>
-                    <span class="copy-icon" onclick="copyRoomCode()" title="複製代碼">📋</span>
+            <div style="display: flex; gap: 20px;">
+                <div class="info-item">
+                    <span class="info-label">Room Code</span>
+                    <div class="room-box">
+                        <span id="displayRoomName" class="room-display">------</span>
+                        <span class="copy-icon" onclick="copyText('displayRoomName')">📋</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Password</span>
+                    <div class="room-box">
+                        <span id="displayRoomPass" class="room-display" style="color: var(--success);">----</span>
+                        <span class="copy-icon" onclick="copyText('displayRoomPass')">📋</span>
+                    </div>
                 </div>
             </div>
             <div style="display: flex; gap: 8px;">
@@ -103,6 +114,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, onValue, remove, get, off } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
+        // ⚠️ 請填入您的 Firebase 配置 ⚠️
         const firebaseConfig = {
   apiKey: "AIzaSyAAj9_PxCYs8ynfPj24jX081MtVtSrrUaE",
   authDomain: "intn-rjpq.firebaseapp.com",
@@ -118,6 +130,7 @@
         const db = getDatabase(app);
         
         let currentRoom = null;
+        let currentPass = null;
         let currentPlayer = 1;
         const platformElements = {};
         const playerClasses = ['occupied-1', 'occupied-2', 'occupied-3', 'occupied-4'];
@@ -145,28 +158,20 @@
             gridContainer.appendChild(rowWrapper);
         }
 
-        // 複製代碼功能
-        window.copyRoomCode = () => {
-            if (!currentRoom) return;
-            navigator.clipboard.writeText(currentRoom).then(() => {
-                const icon = document.querySelector('.copy-icon');
-                const originalText = icon.innerText;
-                icon.innerText = '✅'; // 暫時變成勾勾
-                setTimeout(() => icon.innerText = originalText, 1500);
-            });
+        // 通用複製功能
+        window.copyText = (elementId) => {
+            const text = document.getElementById(elementId).innerText;
+            if (text === "------" || text === "----") return;
+            navigator.clipboard.writeText(text).then(() => alert("已複製到剪貼簿！"));
         };
 
         window.createNewRoom = async () => {
-            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-            let newCode = '';
-            for (let i = 0; i < 6; i++) newCode += chars.charAt(Math.floor(Math.random() * chars.length));
-            
-            const password = prompt(`即將創建房間：${newCode}\n請設定進入密碼：`, "1234");
-            if (password === null) return;
-
-            await set(ref(db, `rooms/${newCode}/config`), { password: password, createdAt: Date.now() });
-            alert(`房間創建成功！\n代碼：${newCode}`);
-            currentRoom = newCode;
+            const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+            const pass = prompt(`創建房間：${code}\n請設定密碼：`, "1234");
+            if (pass === null) return;
+            await set(ref(db, `rooms/${code}/config`), { password: pass, createdAt: Date.now() });
+            currentRoom = code;
+            currentPass = pass;
             startSync();
         };
 
@@ -175,80 +180,54 @@
             const pass = document.getElementById('joinPass').value.trim();
             if (!code || !pass) return alert("請填寫代碼與密碼！");
 
-            const snapshot = await get(ref(db, `rooms/${code}/config`));
-            if (snapshot.exists()) {
-                if (snapshot.val().password === pass) {
-                    currentRoom = code;
-                    startSync();
-                } else { alert("密碼錯誤！🛑"); }
-            } else { alert("找不到房間代碼。"); }
+            const snap = await get(ref(db, `rooms/${code}/config`));
+            if (snap.exists() && snap.val().password === pass) {
+                currentRoom = code;
+                currentPass = pass;
+                startSync();
+            } else { alert("代碼或密碼錯誤！🛑"); }
         };
 
         function startSync() {
             document.getElementById('loginPortal').style.display = 'none';
             document.getElementById('mainConsole').style.display = 'flex';
             document.getElementById('displayRoomName').innerText = currentRoom;
+            document.getElementById('displayRoomPass').innerText = currentPass;
 
             const dataRef = ref(db, `rooms/${currentRoom}/data`);
             dataListener = onValue(dataRef, (snapshot) => {
                 const data = snapshot.val() || {};
                 Object.keys(platformElements).forEach(id => {
                     const el = platformElements[id];
-                    const info = data[id];
                     playerClasses.forEach(c => el.classList.remove(c));
-                    if (info) {
-                        el.classList.add(playerClasses[info.owner - 1]);
-                        el.dataset.owner = info.owner;
+                    if (data[id]) {
+                        el.classList.add(playerClasses[data[id].owner - 1]);
+                        el.dataset.owner = data[id].owner;
                     } else { el.dataset.owner = 0; }
                 });
             });
         }
 
-        // 二次確認離開
-        window.leaveRoom = () => {
-            if (confirm("確定要離開同步空間嗎？(進度將保留)")) {
-                if (dataListener) off(ref(db, `rooms/${currentRoom}/data`));
-                currentRoom = null;
-                document.getElementById('loginPortal').style.display = 'block';
-                document.getElementById('mainConsole').style.display = 'none';
-            }
-        };
-
-        // 重製功能
-        window.resetGrid = async () => {
-            if (confirm("⚠️ 確定要重製(清空)所有玩家的佔領狀態嗎？")) {
-                await remove(ref(db, `rooms/${currentRoom}/data`));
-            }
-        };
+        window.leaveRoom = () => { if(confirm("確定離開？")) location.reload(); };
+        window.resetGrid = async () => { if(confirm("確定重製所有進度？")) await remove(ref(db, `rooms/${currentRoom}/data`)); };
 
         async function handlePlatformClick(id, r, c) {
-    if (!currentRoom) return;
-    const el = platformElements[id];
-    const owner = el.dataset.owner || 0;
+            if (!currentRoom) return;
+            const el = platformElements[id];
+            const owner = el.dataset.owner || 0;
+            if (owner == currentPlayer) {
+                await remove(ref(db, `rooms/${currentRoom}/data/${id}`));
+                return;
+            }
+            if (owner != 0 && owner != currentPlayer) {
+                if (!confirm(`玩家 ${owner} 已選擇，確定覆蓋？`)) return;
+            }
+            set(ref(db, `rooms/${currentRoom}/data/${id}`), { owner: currentPlayer });
+        }
 
-    // --- 新增功能：再次點選取消 ---
-    if (owner == currentPlayer) {
-        // 如果點擊的是自己的顏色，則取消佔領 (從 Firebase 移除該節點)
-        await remove(ref(db, `rooms/${currentRoom}/data/${id}`));
-        return; 
-    }
-    // ----------------------------
-
-    // 如果點擊的是別人的格子，跳出確認
-    if (owner != 0 && owner != currentPlayer) {
-        if (!confirm(`該處已被玩家 ${owner} 佔領，確定要覆蓋它嗎？⚔️`)) return;
-    }
-
-    // 執行佔領
-    set(ref(db, `rooms/${currentRoom}/data/${id}`), { 
-        owner: currentPlayer, 
-        time: Date.now() 
-    });
-}
-
-        window.setPlayer = (num) => {
-            currentPlayer = num;
-            document.querySelectorAll('.player-tag').forEach((el, idx) => el.classList.toggle('active-player', idx === (num - 1)));
+        window.setPlayer = (n) => {
+            currentPlayer = n;
+            document.querySelectorAll('.player-tag').forEach((t, i) => t.classList.toggle('active-player', i === n-1));
         };
     </script>
 </body>
